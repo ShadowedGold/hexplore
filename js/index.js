@@ -22,6 +22,9 @@ const originX = canvas.width / 2;
 const originY = canvas.height / 2;
 var curPos = [0,0];
 
+// key press to move
+addEventListener("keydown", (e) => { move(e.key); });
+
 function drawHex(x, y, colour) {
   pathHex(x, y);
   ctx.lineWidth = 1;
@@ -93,29 +96,35 @@ function drawMap() {
 function move(direction) {
   switch (direction) {
     case 0:
+    case "w":
       curPos[1] += -1;
       break;
     case 1:
+    case "e":
       curPos[0] += 1;
       curPos[1] += -0.5;
       break;
     case 2:
+    case "d":
       curPos[0] += 1;
       curPos[1] += 0.5;
       break;
     case 3:
+    case "s":
       curPos[1] += 1;
       break;
     case 4:
+    case "a":
       curPos[0] += -1;
       curPos[1] += 0.5;
       break;
     case 5:
+    case "q":
       curPos[0] += -1;
       curPos[1] += -0.5
       break;
     default:
-      console.log("error, invalid input");
+      console.log("error, invalid input: "+direction);
   }
   drawMap();
 }
