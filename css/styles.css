@@ -1,0 +1,7 @@
+body {
+  padding: 5px;
+  margin: 0;
+}
+#map {
+  border: 1px solid black;
+}
