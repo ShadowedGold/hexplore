@@ -6,9 +6,11 @@ const tileTypes = [
 ]
 
 class HexChunk {
-  constructor () {
+  constructor (x, y) {
     this.pathPoints = new Array(3);
     this.cellsArr = new Array(61);
+    this.xOffset = x;
+    this.yOffset = y;
   }
 }
 
