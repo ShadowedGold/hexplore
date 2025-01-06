@@ -20,7 +20,7 @@ var chunks = {};
 // origin set up
 const originX = canvas.width / 2;
 const originY = canvas.height / 2;
-const curPos = [0,0];
+var curPos = [0,0];
 
 function drawHex(x, y, colour) {
   pathHex(x, y);
@@ -65,14 +65,59 @@ function initChunk(x, y) {
 
 function drawChunk(chunkName, x, y) {
   chunks[chunkName].cellsArr.forEach((cell, i) => {
-    var relX = x + (cellRelPos[i][0] * -hexOffsetWidth);
-    var relY = y + (cellRelPos[i][1] * -hexHeight);
+    let relX = x + ((curPos[0] + cellRelPos[i][0]) * -hexOffsetWidth);
+    let relY = y + ((curPos[1] + cellRelPos[i][1]) * -hexHeight);
     drawHex(relX, relY, chunks[chunkName].cellsArr[i]);
   });
 }
 
+function drawDog(x, y) {
+  ctx.fillStyle = 'white';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  let fontsize = radius;
+  ctx.font = fontsize+"px sans-serif";
+  let text = "🐕";
+
+  let relY = y + (-4 * -hexHeight);
+
+  ctx.fillText(text, x, relY);
+}
+
 function drawMap() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawChunk("0,0", originX, originY);
+  drawDog(originX, originY);
+}
+
+function move(direction) {
+  switch (direction) {
+    case 0:
+      curPos[1] += -1;
+      break;
+    case 1:
+      curPos[0] += 1;
+      curPos[1] += -0.5;
+      break;
+    case 2:
+      curPos[0] += 1;
+      curPos[1] += 0.5;
+      break;
+    case 3:
+      curPos[1] += 1;
+      break;
+    case 4:
+      curPos[0] += -1;
+      curPos[1] += 0.5;
+      break;
+    case 5:
+      curPos[0] += -1;
+      curPos[1] += -0.5
+      break;
+    default:
+      console.log("error, invalid input");
+  }
+  drawMap();
 }
 
 initChunk(0,0);
