@@ -199,7 +199,50 @@ function checkChunkInView(chunkName) {
         (point[1] > 0 && point[1] < canvas.height))
         return true;
   });
+
+  // points 0 & 1 : bottom right hex corner, top left canvas corner
+  // points 1 & 2 : bottom left hex corner, top right canvas corner
+  // points 3 & 4 : top left hex corner, bottom right canvas corner
+  // points 4 & 5 : top right hex corner, bottom left canvas corner
+  let cornerIsInView = false;
+  if (checkCorner(pointsArr[0], pointsArr[1], 0, 0, -1, "upper") ||
+      checkCorner(pointsArr[1], pointsArr[2], canvas.width, 0, 1, "upper") ||
+      checkCorner(pointsArr[3], pointsArr[4], canvas.width, canvas.height, -1, "lower") ||
+      checkCorner(pointsArr[4], pointsArr[5], 0, canvas.height, 1, "lower"))
+    cornerIsInView = true;
+
+  console.log(chunkName, pointIsInView, cornerIsInView);
+
   return pointIsInView;
+}
+
+function checkCorner(p0, p1, cX, cY, offset, match) {
+  // p0 & p1 : points 1 & 2
+  // cX & cY : canvas corner
+  // offset : flips the direction of the diagonal
+  // https://stackoverflow.com/questions/40776014/javascript-point-collision-with-regular-hexagon
+
+  let rx = (p0[0] < p1[0]) ? p0[0] : p1[0];
+  let ry = (p0[1] < p1[1]) ? p0[1] : p1[1];
+  let w = hexRadius * 6; // 150
+  let h = hexRadius * Math.sqrt(3) * 2; // 86.6025
+
+  let x = cX;
+  let y = cY;
+  let result = "";
+  x = (((x - rx) % w) / w) * offset; //0.5
+  y = ((y - ry) % h) / h; //0.62
+  if (x > y) {
+    // point in upper right triangle
+    result = "upper";
+  } else if (x < y) {
+    // point in lower left triangle if offset = positive
+    // point in lower right triangle if offset = negative
+    result = "lower";
+  } else {
+    // point on diagonal
+  }
+  return (match == result) ? true : false;
 }
 
 function drawChunkPerim(chunkOriginX, chunkOriginY) {
@@ -231,8 +274,8 @@ function updateCurPosChunk() {
       (relPos[0] == 2 && relPos[1] == 4) ||
       (relPos[0] == 3 && relPos[1] == 3.5) ||
       (relPos[0] == 4 && relPos[1] == 3)) {
-    curChunk[0] +=0.5;
-    curChunk[1] +=0.5;
+    curChunk[0] += 0.5;
+    curChunk[1] += 0.5;
   }
 
   if ((relPos[0] == 5 && relPos[1] == 2.5) ||
@@ -240,7 +283,7 @@ function updateCurPosChunk() {
       (relPos[0] == 5 && relPos[1] == 0.5) ||
       (relPos[0] == 5 && relPos[1] == -0.5) ||
       (relPos[0] == 5 && relPos[1] == -1.5)) {
-    curChunk[0] +=1;
+    curChunk[0] += 1;
   }
 
   if ((relPos[0] == 5 && relPos[1] == -2.5) ||
@@ -248,8 +291,8 @@ function updateCurPosChunk() {
       (relPos[0] == 3 && relPos[1] == -3.5) ||
       (relPos[0] == 2 && relPos[1] == -4) ||
       (relPos[0] == 1 && relPos[1] == -4.5)) {
-    curChunk[0] +=0.5;
-    curChunk[1] -=0.5;
+    curChunk[0] += 0.5;
+    curChunk[1] -= 0.5;
   }
 
   if ((relPos[0] == 0 && relPos[1] == -5) ||
@@ -257,8 +300,8 @@ function updateCurPosChunk() {
       (relPos[0] == -2 && relPos[1] == -4) ||
       (relPos[0] == -3 && relPos[1] == -3.5) ||
       (relPos[0] == -4 && relPos[1] == -3)) {
-    curChunk[0] -=0.5;
-    curChunk[1] -=0.5;
+    curChunk[0] -= 0.5;
+    curChunk[1] -= 0.5;
   }
 
   if ((relPos[0] == -5 && relPos[1] == -2.5) ||
@@ -266,7 +309,7 @@ function updateCurPosChunk() {
       (relPos[0] == -5 && relPos[1] == -0.5) ||
       (relPos[0] == -5 && relPos[1] == 0.5) ||
       (relPos[0] == -5 && relPos[1] == 1.5)) {
-    curChunk[0] -=1;
+    curChunk[0] -= 1;
   }
 
   if ((relPos[0] == -5 && relPos[1] == 2.5) ||
@@ -274,8 +317,8 @@ function updateCurPosChunk() {
       (relPos[0] == -3 && relPos[1] == 3.5) ||
       (relPos[0] == -2 && relPos[1] == 4) ||
       (relPos[0] == -1 && relPos[1] == 4.5)) {
-    curChunk[0] -=0.5;
-    curChunk[1] +=0.5;
+    curChunk[0] -= 0.5;
+    curChunk[1] += 0.5;
   }
 
   //console.log(relPos, curChunk);
@@ -303,8 +346,10 @@ function getChunksInView() {
       let neighbourYOffset = offset[1] + neighbour[1];
       let neighbourName = neighbourXOffset+","+neighbourYOffset;
 
-      if (checkChunkInView(neighbourName)) {
-        if (!chunksInView.includes(neighbourName)) {
+      // if it isn't already in the list we are checking...
+      if (!chunksInView.includes(neighbourName)) {
+        // if it is on screen...
+        if (checkChunkInView(neighbourName)) {
           // init them if they aren't init'd yet
           if (!(neighbourName in chunks))
             initChunk(neighbourXOffset, neighbourYOffset)
@@ -315,7 +360,7 @@ function getChunksInView() {
     });
   }
 
-  console.log(chunksInView);
+  console.log(chunksInView.length);
 }
 
 // check which chunks are in frame
