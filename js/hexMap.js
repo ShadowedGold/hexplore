@@ -1,8 +1,8 @@
 const tileTypes = [
-  "D2B590",
-  "A6C797",
-  "005D22",
-  "3E0300"
+  "D2B590", // path brown
+  "A6C797", // light green
+  "005D22", // dark green
+  "3E0300"  // dark brown
 ]
 
 class HexChunk {
@@ -141,3 +141,12 @@ const cellRelPos = {
   59: [-2,  3.0],
   60: [-1,  3.5]
 }
+
+const chunkRelNeighbours = [
+  [ 0.5, 0.5],
+  [ 1  , 0  ],
+  [ 0.5,-0.5],
+  [-0.5,-0.5],
+  [-1  , 0  ],
+  [-0.5, 0.5]
+]
