@@ -236,17 +236,18 @@ function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
   let y = cY;
   let result = "";
 
-  if (((rx + w) > x) && (rx < x) &&
-      ((ry + h) > y) && (ry < y)) {
+  if ((((rx + w) == x && x > 0) || (rx + w) > x) && (rx < x) &&
+      (((ry + h) == y && y > 0) || (ry + h) > y) && (ry < y)) {
     x = ((x - rx) % w) / w; // less than one, a percent of w
     y = ((y - ry) % h) / h; // less than one, a percent of h
     if (offset) x = 1 - x; // apply offset if true
-    if (x > y) {
-      // point in upper right triangle
+    if (x > y || x == 0) {
+      // point in upper right triangle if offset false
+      // point in upper left triangle if offset true
       result = "upper";
     } else if (x < y) {
-      // point in lower left triangle if offset = positive
-      // point in lower right triangle if offset = negative
+      // point in lower left triangle if offset false
+      // point in lower right triangle if offset true
       result = "lower";
     } else {
       // point on diagonal
@@ -254,11 +255,11 @@ function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
   }
   
   /*
-  if (chunkName == "1,1") {
+  if (chunkName == "-1,1") {
     let pointsStr = "["+p0[0].toFixed(2)+","+p0[1].toFixed(2)+"]"+
                     "["+p1[0].toFixed(2)+","+p1[1].toFixed(2)+"]";
     let xyStr = "["+x.toFixed(2)+","+y.toFixed(2)+"]";
-    console.log(pointsStr, [cX, cY], xyStr, match, (match == result));
+    console.log(pointsStr, [cX, cY], xyStr, offset, match, (match == result));
   }
   */
 
@@ -270,8 +271,10 @@ function drawChunkPerim(chunkOriginX, chunkOriginY) {
           chunkOriginY - (-curPos[1] * hexHeight),
           chunkRadius, 0.5);
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'dimgrey';
+  ctx.strokeStyle = 'white';
+  ctx.setLineDash([2, 5]);
   ctx.stroke();
+  ctx.setLineDash([]);
 }
 
 function getRelPos() {
@@ -385,5 +388,5 @@ function getChunksInView() {
     });
   }
 
-  //console.log(chunksInView.length);
+  console.log(chunksInView.length);
 }
