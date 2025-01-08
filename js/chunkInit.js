@@ -29,15 +29,29 @@ function initPath(chunkName) {
     chunks[chunkName].pathPoints[i] = (Math.random() >= 0.5) ? true : false;
   }
 
-  // assign a path texture to the path point hexes with a path
-  if (chunks[chunkName].pathPoints[0] == true)
-    chunks[chunkName].cellsArr[41] = tileTypes[0];
+  // if any pathPoints are true/active
+  if (chunks[chunkName].pathPoints.some((pathPoint) => { return pathPoint})) {
+    // pick a random hex between 0 and 18
+    // that all the paths should converge on
+    let pathMeetingPoint = Math.floor(Math.random() * 18);
+    chunks[chunkName].cellsArr[pathMeetingPoint] = tileTypes[0];
+  
+    const pathPointHexMapArr = [
+      [0,41], // pathPoints[0] = hex 41
+      [1,49], // pathPoints[1] = hex 49
+      [2,57]  // pathPoints[2] = hex 57
+    ]
 
-  if (chunks[chunkName].pathPoints[1] == true)
-    chunks[chunkName].cellsArr[49] = tileTypes[0];
+    // assign a path texture to the pathPoint hexes with a path
+    pathPointHexMapArr.forEach((pathPointHexMap) => {
+      if (chunks[chunkName].pathPoints[pathPointHexMap[0]] == true)
+        initPathLine(chunkName, pathMeetingPoint, pathPointHexMap[1]);
+    });
+  }
+}
 
-  if (chunks[chunkName].pathPoints[2] == true)
-    chunks[chunkName].cellsArr[57] = tileTypes[0];
+function initPathLine(chunkName, startHex, endHex) {
+  chunks[chunkName].cellsArr[endHex] = tileTypes[0];
 }
 
 function getChunkNeighbourName(chunkOffset, n) {
