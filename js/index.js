@@ -69,22 +69,11 @@ function initChunk(x, y) {
   let chunkName = x+","+y;
   chunks[chunkName] = new HexChunk(x, y);
 
-  for (let i = 0; i < chunks[chunkName].cellsArr.length; i++) {
-    chunks[chunkName].cellsArr[i] = tileTypes[1];
-  }
-
-  for (let i = 0; i < chunks[chunkName].pathPoints.length; i++) {
-    chunks[chunkName].pathPoints[i] = (Math.random() >= 0.5) ? true : false;
-  }
-
-  if (chunks[chunkName].pathPoints[0] == true)
-    chunks[chunkName].cellsArr[41] = tileTypes[0];
-
-  if (chunks[chunkName].pathPoints[1] == true)
-    chunks[chunkName].cellsArr[49] = tileTypes[0];
-
-  if (chunks[chunkName].pathPoints[2] == true)
-    chunks[chunkName].cellsArr[57] = tileTypes[0];
+  // init pathes
+  initPath(chunkName);
+  
+  // init other tiles
+  initBackground(chunkName);
 }
 
 function getChunkOrigin(chunkName) {
@@ -388,5 +377,5 @@ function getChunksInView() {
     });
   }
 
-  console.log(chunksInView.length);
+  //console.log(chunksInView.length);
 }
