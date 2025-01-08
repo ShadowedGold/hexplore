@@ -20,16 +20,19 @@ const hexRadius = 25; // 45
 const hexOffsetWidth = hexRadius * 1.5;
 const hexHeight = hexRadius * Math.sqrt(3);
 
-// chunk size
+// chunk setup
 const chunkRadius = hexHeight * 4;
-
-// chunk storage
 var chunks = {};
 var chunksInView = [];
-var chunksNotInView = [];
 
-// key press to move
+// key press to move (qweasd)
 addEventListener("keydown", (e) => { move(e.key); });
+
+// RUN -----------------------------------------------------------------
+// check which chunks are in frame
+getChunksInView();
+// draw the chunks in frame
+drawMap();
 
 function drawHex(x, y, colour) {
   pathHex(x, y, hexRadius, 0);
@@ -213,7 +216,7 @@ function checkChunkInView(chunkName) {
       checkCorner(pointsArr[4], pointsArr[5], 0, canvas.height, false, "lower", chunkName)))
     cornerIsInView = true;
 
-  console.log(chunkName, pointIsInView, cornerIsInView);
+  //console.log(chunkName, pointIsInView, cornerIsInView);
 
   return (pointIsInView || cornerIsInView);
 }
@@ -250,12 +253,14 @@ function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
     }
   }
   
+  /*
   if (chunkName == "1,1") {
     let pointsStr = "["+p0[0].toFixed(2)+","+p0[1].toFixed(2)+"]"+
                     "["+p1[0].toFixed(2)+","+p1[1].toFixed(2)+"]";
     let xyStr = "["+x.toFixed(2)+","+y.toFixed(2)+"]";
     console.log(pointsStr, [cX, cY], xyStr, match, (match == result));
   }
+  */
 
   return (match == result) ? true : false;
 }
@@ -278,11 +283,10 @@ function getRelPos() {
 
 function updateCurPosChunk() {
   let relPos = getRelPos();
-  /*
-  let x = relPos[0] * hexOffsetWidth;
-  let y = relPos[1] * hexHeight;
-  let c = Math.sqrt((x * x) + (y * y));
-  */
+  
+  //let x = relPos[0] * hexOffsetWidth;
+  //let y = relPos[1] * hexHeight;
+  //let c = Math.sqrt((x * x) + (y * y));
 
   if ((relPos[0] == 0 && relPos[1] == 5) ||
       (relPos[0] == 1 && relPos[1] == 4.5) ||
@@ -341,6 +345,7 @@ function updateCurPosChunk() {
 
 function getChunksInView() {
   chunksInView = [];
+  let chunksNotInView = [];
 
   // start at curChunk
   let curPosName = curChunk[0]+","+curChunk[1];
@@ -361,8 +366,9 @@ function getChunksInView() {
       let neighbourYOffset = offset[1] + neighbour[1];
       let neighbourName = neighbourXOffset+","+neighbourYOffset;
 
-      // if it isn't already in the list we are checking...
-      if (!chunksInView.includes(neighbourName)) {
+      // if it isn't already in one of the lists we put the stuff we've checked...
+      if (!chunksInView.includes(neighbourName) &&
+          !chunksNotInView.includes(neighbourName)) {
         // if it is on screen...
         if (checkChunkInView(neighbourName)) {
           // init them if they aren't init'd yet
@@ -370,15 +376,14 @@ function getChunksInView() {
             initChunk(neighbourXOffset, neighbourYOffset)
           
           chunksInView.push(neighbourName);
+        } else {
+          // if it isn't on screen, add it to a list so we know
+          // it failed the check and we don't need to check it again
+          chunksNotInView.push(neighbourName);
         }
       }
     });
   }
 
-  console.log(chunksInView.length);
+  //console.log(chunksInView.length);
 }
-
-// check which chunks are in frame
-getChunksInView();
-// draw the chunks in frame
-drawMap();
