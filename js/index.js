@@ -26,6 +26,7 @@ const chunkRadius = hexHeight * 4;
 // chunk storage
 var chunks = {};
 var chunksInView = [];
+var chunksNotInView = [];
 
 // key press to move
 addEventListener("keydown", (e) => { move(e.key); });
@@ -205,18 +206,19 @@ function checkChunkInView(chunkName) {
   // points 3 & 4 : top left hex corner, bottom right canvas corner
   // points 4 & 5 : top right hex corner, bottom left canvas corner
   let cornerIsInView = false;
-  if (checkCorner(pointsArr[0], pointsArr[1], 0, 0, -1, "upper") ||
-      checkCorner(pointsArr[1], pointsArr[2], canvas.width, 0, 1, "upper") ||
-      checkCorner(pointsArr[3], pointsArr[4], canvas.width, canvas.height, -1, "lower") ||
-      checkCorner(pointsArr[4], pointsArr[5], 0, canvas.height, 1, "lower"))
+  if (!pointIsInView && (
+      checkCorner(pointsArr[0], pointsArr[1], 0, 0, true, "upper", chunkName) ||
+      checkCorner(pointsArr[1], pointsArr[2], canvas.width, 0, false, "upper", chunkName) ||
+      checkCorner(pointsArr[3], pointsArr[4], canvas.width, canvas.height, true, "lower", chunkName) ||
+      checkCorner(pointsArr[4], pointsArr[5], 0, canvas.height, false, "lower", chunkName)))
     cornerIsInView = true;
 
   console.log(chunkName, pointIsInView, cornerIsInView);
 
-  return pointIsInView;
+  return (pointIsInView || cornerIsInView);
 }
 
-function checkCorner(p0, p1, cX, cY, offset, match) {
+function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
   // p0 & p1 : points 1 & 2
   // cX & cY : canvas corner
   // offset : flips the direction of the diagonal
@@ -230,18 +232,31 @@ function checkCorner(p0, p1, cX, cY, offset, match) {
   let x = cX;
   let y = cY;
   let result = "";
-  x = (((x - rx) % w) / w) * offset; //0.5
-  y = ((y - ry) % h) / h; //0.62
-  if (x > y) {
-    // point in upper right triangle
-    result = "upper";
-  } else if (x < y) {
-    // point in lower left triangle if offset = positive
-    // point in lower right triangle if offset = negative
-    result = "lower";
-  } else {
-    // point on diagonal
+
+  if (((rx + w) > x) && (rx < x) &&
+      ((ry + h) > y) && (ry < y)) {
+    x = ((x - rx) % w) / w; // less than one, a percent of w
+    y = ((y - ry) % h) / h; // less than one, a percent of h
+    if (offset) x = 1 - x; // apply offset if true
+    if (x > y) {
+      // point in upper right triangle
+      result = "upper";
+    } else if (x < y) {
+      // point in lower left triangle if offset = positive
+      // point in lower right triangle if offset = negative
+      result = "lower";
+    } else {
+      // point on diagonal
+    }
   }
+  
+  if (chunkName == "1,1") {
+    let pointsStr = "["+p0[0].toFixed(2)+","+p0[1].toFixed(2)+"]"+
+                    "["+p1[0].toFixed(2)+","+p1[1].toFixed(2)+"]";
+    let xyStr = "["+x.toFixed(2)+","+y.toFixed(2)+"]";
+    console.log(pointsStr, [cX, cY], xyStr, match, (match == result));
+  }
+
   return (match == result) ? true : false;
 }
 
