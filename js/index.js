@@ -24,7 +24,7 @@ canvas.height = 800;
 document.body.appendChild(canvas);
 var ctx = canvas.getContext('2d');
 
-// origin set up
+// origin setup
 const originX = canvas.width / 2;
 const originY = canvas.height / originYZoomOffset;
 var curPos = [0,0];
@@ -40,6 +40,9 @@ const hexHeight = hexRadius * Math.sqrt(3);
 const chunkRadius = hexHeight * 4;
 var chunks = {};
 var chunksInView = [];
+
+// dog direction setup
+var dogDir = 5;
 
 // key press to move (qweasd)
 addEventListener("keydown", (e) => { move(e.key); });
@@ -139,9 +142,34 @@ function drawDog(x, y) {
   ctx.font = fontsize+"px sans-serif";
   let text = "🐕";
 
-  //let relY = y + (-4 * -hexHeight);
-
-  ctx.fillText(text, x, y);
+  ctx.translate(originX, originY);
+  switch (dogDir) {
+    case 0:
+      ctx.rotate(angle * 1);
+      break;
+    case 1:
+      ctx.scale(-1, 1);
+      break;
+    case 2:
+      ctx.rotate(angle * 1);
+      ctx.scale(-1, 1);
+      break;
+    case 3:
+      ctx.rotate(angle * -2);
+      break;
+    case 4:
+      ctx.rotate(angle * -1);
+      break;
+    case 5:
+      ctx.rotate(angle * 0);//(-55 * Math.PI) / 180);
+      break;
+    default:
+      console.log("error: rotation makes no sense");
+  }
+  ctx.fillText(text, 0, 0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  
+  //ctx.fillText(text, x, y);
 }
 
 function drawMap() {
@@ -165,30 +193,36 @@ function move(direction) {
     case 0:
     case "w":
       curPos[1] += 1;
+      dogDir = 0;
       break;
     case 1:
     case "e":
       curPos[0] += 1;
       curPos[1] += 0.5;
+      dogDir = 1;
       break;
     case 2:
     case "d":
       curPos[0] += 1;
       curPos[1] += -0.5;
+      dogDir = 2;
       break;
     case 3:
     case "s":
       curPos[1] += -1;
+      dogDir = 3;
       break;
     case 4:
     case "a":
       curPos[0] += -1;
       curPos[1] += -0.5;
+      dogDir = 4;
       break;
     case 5:
     case "q":
       curPos[0] += -1;
       curPos[1] += 0.5
+      dogDir = 5;
       break;
     default:
       console.log("error, invalid input: "+direction);
