@@ -178,6 +178,8 @@ function move(direction) {
   updateCurPosChunk();
   getChunksInView();
   drawMap();
+  
+  //console.log(curChunk);
 }
 
 function checkChunkInView(chunkName) {
