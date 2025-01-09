@@ -155,13 +155,13 @@ function drawDog(x, y) {
       ctx.scale(-1, 1);
       break;
     case 3:
-      ctx.rotate(angle * -2);
+      ctx.rotate(angle * 2);
+      ctx.scale(-1, 1);
       break;
     case 4:
       ctx.rotate(angle * -1);
       break;
     case 5:
-      ctx.rotate(angle * 0);//(-55 * Math.PI) / 180);
       break;
     default:
       console.log("error: rotation makes no sense");
