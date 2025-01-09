@@ -149,12 +149,40 @@ function getChunkNeighbourName(chunkOffset, n) {
 }
 
 function initBackground(chunkName) {
+  let chunkOffset = getChunkOffset(chunkName);
+
+  // copy overlapping neighbouring tiles
+  for (let n = 0; n < 6; n++) {
+    let neighbourName = getChunkNeighbourName(chunkOffset, n);
+
+    // if neighbouring chunk exists...
+    if (neighbourName in chunks) {
+      Object.keys(neighbouringChunkHexes[n]).forEach((hex) => {
+        let equivHexContents = chunks[neighbourName].cellsArr[neighbouringChunkHexes[n][hex]];
+        if (equivHexContents !== undefined) chunks[chunkName].cellsArr[hex] = equivHexContents;
+      });
+    }
+  }
+  
   // go over all hexes in the chunk
   for (let i = 0; i < chunks[chunkName].cellsArr.length; i++) {
     // if the hexes aren't already designated other tiles...
     if (chunks[chunkName].cellsArr[i] == undefined) {
-      // set them to grass for now
-      chunks[chunkName].cellsArr[i] = tileTypes[1];
+      // if neighbouring hex contains a path...
+      if (neighbouringHexContains(chunkName, i, tileTypes[0])) {
+        // 30% chance of bushes, 70% chance of grass
+        chunks[chunkName].cellsArr[i] = (Math.random() >= 0.3) ? tileTypes[1] : tileTypes[2];
+      } else {
+        // if neighbouring hex doesn't contain a path...
+        // 10% chance of trees, 90% chance of bushes
+        chunks[chunkName].cellsArr[i] = (Math.random() >= 0.1) ? tileTypes[2] : tileTypes[3];
+      }
     }
   }
+}
+
+function neighbouringHexContains(chunkName, hex, checking) {
+  return cellNeighbours[hex].some((neighbour) => {
+    if (chunks[chunkName].cellsArr[neighbour] == checking) return true;
+  });
 }
