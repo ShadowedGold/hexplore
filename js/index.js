@@ -1,3 +1,19 @@
+// TWEAK ---------------------------------------------------------------
+
+var originYZoomOffset;
+var hexRadiusZoom;
+
+// zoomed in if true
+if (true) {
+  originYZoomOffset = 1.5;
+  hexRadiusZoom = 45;
+} else {
+  originYZoomOffset = 2;
+  hexRadiusZoom = 25;
+}
+
+// SET UP --------------------------------------------------------------
+
 // canvas setup
 var canvas = document.createElement('canvas');
 
@@ -10,13 +26,13 @@ var ctx = canvas.getContext('2d');
 
 // origin set up
 const originX = canvas.width / 2;
-const originY = canvas.height / 2; // 3 * 2
+const originY = canvas.height / originYZoomOffset;
 var curPos = [0,0];
 var curChunk = [0,0];
 
 // hex setup
 const angle = 2 * Math.PI / 6;
-const hexRadius = 25; // 45
+const hexRadius = hexRadiusZoom;
 const hexOffsetWidth = hexRadius * 1.5;
 const hexHeight = hexRadius * Math.sqrt(3);
 
@@ -29,15 +45,18 @@ var chunksInView = [];
 addEventListener("keydown", (e) => { move(e.key); });
 
 // RUN -----------------------------------------------------------------
+
 // check which chunks are in frame
 getChunksInView();
 // draw the chunks in frame
 drawMap();
 
+// FUNCTIONS -----------------------------------------------------------
+
 function drawHex(x, y, colour) {
   pathHex(x, y, hexRadius, 0);
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'dimgrey';
+  ctx.strokeStyle = '#202020';
   ctx.stroke();
   ctx.fillStyle = "#"+colour;
   ctx.fill();
@@ -262,7 +281,7 @@ function drawChunkPerim(chunkOriginX, chunkOriginY) {
           chunkOriginY - (-curPos[1] * hexHeight),
           chunkRadius, 0.5);
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'white';
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
   ctx.setLineDash([2, 5]);
   ctx.stroke();
   ctx.setLineDash([]);

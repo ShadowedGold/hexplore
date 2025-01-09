@@ -25,8 +25,15 @@ function initPath(chunkName) {
   // go over all the path points in the chunk
   for (let i = 0; i < chunks[chunkName].pathPoints.length; i++) {
     // if any of the path points aren't already init'd, init them
-    if (chunks[chunkName].pathPoints[i] == undefined)
-    chunks[chunkName].pathPoints[i] = (Math.random() >= 0.4) ? true : false;
+    if (chunks[chunkName].pathPoints[i] == undefined) {
+      chunks[chunkName].pathPoints[i] = (Math.random() >= 0.4) ? true : false;
+      
+      // just for the starting chunk...
+      if (chunkName == '0,0') {
+        if (i == 0 || i == 2) chunks[chunkName].pathPoints[i] = true;
+        else chunks[chunkName].pathPoints[i] = false;
+      }
+    }
   }
 
   // if any pathPoints are true/active
@@ -174,8 +181,20 @@ function initBackground(chunkName) {
         chunks[chunkName].cellsArr[i] = (Math.random() >= 0.3) ? tileTypes[1] : tileTypes[2];
       } else {
         // if neighbouring hex doesn't contain a path...
-        // 10% chance of trees, 90% chance of bushes
-        chunks[chunkName].cellsArr[i] = (Math.random() >= 0.1) ? tileTypes[2] : tileTypes[3];
+        // hex contains bushes
+        chunks[chunkName].cellsArr[i] = tileTypes[2];
+      }
+    }
+  }
+
+  // go over all hexes in the chunk that aren't edge hexes
+  for (let i = 0; i < 37; i++) {
+    // if the hex is a bush...
+    if (chunks[chunkName].cellsArr[i] == tileTypes[2]) {
+      // if neighbouring hexes are only bushes...
+      if (neighbouringHexesAllContain(chunkName, i, tileTypes[2])) {
+        // 90% chance of trees
+        if (!(Math.random() >= 0.9)) chunks[chunkName].cellsArr[i] = tileTypes[3];
       }
     }
   }
@@ -183,6 +202,12 @@ function initBackground(chunkName) {
 
 function neighbouringHexContains(chunkName, hex, checking) {
   return cellNeighbours[hex].some((neighbour) => {
+    if (chunks[chunkName].cellsArr[neighbour] == checking) return true;
+  });
+}
+
+function neighbouringHexesAllContain(chunkName, hex, checking) {
+  return cellNeighbours[hex].every((neighbour) => {
     if (chunks[chunkName].cellsArr[neighbour] == checking) return true;
   });
 }
