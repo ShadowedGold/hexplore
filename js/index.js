@@ -135,7 +135,7 @@ function drawDog(x, y) {
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  let fontsize = hexRadius * 1.5;
+  let fontsize = hexRadius * 2;
   ctx.font = fontsize+"px sans-serif";
   let text = "🐕";
 
