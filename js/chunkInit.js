@@ -1,3 +1,14 @@
+function initChunk(x, y) {
+  let chunkName = x+","+y;
+  chunks[chunkName] = new HexChunk(x, y);
+
+  // init pathes
+  initPath(chunkName);
+  
+  // init other tiles
+  initBackground(chunkName);
+}
+
 function initPath(chunkName) {
   let chunkOffset = getChunkOffset(chunkName);
 
@@ -119,11 +130,11 @@ function initPathLine(chunkName, startHex, endHex) {
 
   stepsArr.forEach((step, i) => {
     //if (i > 0) {
-    chunks[chunkName].cellsArr[cellRelPos.findIndex(matchStep, step)] = tileTypes[0];
+    chunks[chunkName].cellsArr[cellRelPos.findIndex(matchArrElement, step)] = tileTypes[0];
   });
 }
 
-function matchStep(element) {
+function matchArrElement(element) {
   return element[0] == this[0] && element[1] == this[1];
 }
 

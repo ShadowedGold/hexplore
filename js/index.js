@@ -42,28 +42,33 @@ var chunks = {};
 var chunksInView = [];
 
 // dog direction setup
-var dogDir = 5;
+var dogDir = 0;
+
+// treasure setup
+var treasure1 = new Array(10);
+const treasure1Img = "🍄";
+
+var treasure1Found = false;
+var nearbyTreasure1 = false;
+
+const treasure2Available = 5;
+var treasure2 = new Array(treasure2Available);
+const treasure2Img = "✨";
 
 // key press to move (qweasd)
 addEventListener("keydown", (e) => { move(e.key); });
 
 // RUN -----------------------------------------------------------------
 
+// place treasure
+setupTreasure(treasure1);
+setupTreasure(treasure2);
 // check which chunks are in frame
 getChunksInView();
 // draw the chunks in frame
 drawMap();
 
 // FUNCTIONS -----------------------------------------------------------
-
-function drawHex(x, y, colour) {
-  pathHex(x, y, hexRadius, 0);
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = '#202020';
-  ctx.stroke();
-  ctx.fillStyle = "#"+colour;
-  ctx.fill();
-}
 
 function pathHex(x, y, radius, offset) {
   ctx.beginPath();
@@ -85,17 +90,6 @@ function getHexPoints(x, y, radius, offset) {
   }
 
   return pointsArr;
-}
-
-function initChunk(x, y) {
-  let chunkName = x+","+y;
-  chunks[chunkName] = new HexChunk(x, y);
-
-  // init pathes
-  initPath(chunkName);
-  
-  // init other tiles
-  initBackground(chunkName);
 }
 
 function getChunkOrigin(chunkName) {
@@ -122,107 +116,40 @@ function getChunkOffset(chunkName) {
   return [xOffset, yOffset];
 }
 
-function drawChunk(chunkName) {
-  let chunkOrigin = getChunkOrigin(chunkName);
-
-  chunks[chunkName].cellsArr.forEach((cell, i) => {
-    let relX = chunkOrigin[0] + ((curPos[0] - cellRelPos[i][0]) * -hexOffsetWidth);
-    let relY = chunkOrigin[1] + ((-curPos[1] + cellRelPos[i][1]) * -hexHeight);
-    drawHex(relX, relY, chunks[chunkName].cellsArr[i]);
-  });
-
-  return chunkOrigin;
-}
-
-function drawDog(x, y) {
-  ctx.fillStyle = 'white';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  let fontsize = hexRadius * 2;
-  ctx.font = fontsize+"px sans-serif";
-  let text = "🐕";
-
-  ctx.translate(originX, originY);
-  switch (dogDir) {
-    case 0:
-      ctx.rotate(angle * 1);
-      break;
-    case 1:
-      ctx.scale(-1, 1);
-      break;
-    case 2:
-      ctx.rotate(angle * 1);
-      ctx.scale(-1, 1);
-      break;
-    case 3:
-      ctx.rotate(angle * 2);
-      ctx.scale(-1, 1);
-      break;
-    case 4:
-      ctx.rotate(angle * -1);
-      break;
-    case 5:
-      break;
-    default:
-      console.log("error: rotation makes no sense");
-  }
-  ctx.fillText(text, 0, 0);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  
-  //ctx.fillText(text, x, y);
-}
-
-function drawMap() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  let chunkOrigins = [];
-  
-  chunksInView.forEach((chunkName) => {
-    chunkOrigins.push(drawChunk(chunkName));
-  });
-
-  chunkOrigins.forEach((chunkOrigin, i) => {
-    drawChunkPerim(chunkOrigins[i][0], chunkOrigins[i][1]);
-  });
-
-  drawDog(originX, originY);
-}
-
 function move(direction) {
+  treasure1Found = false;
+
   switch (direction) {
     case 0:
     case "w":
       curPos[1] += 1;
-      dogDir = 0;
       break;
     case 1:
     case "e":
       curPos[0] += 1;
       curPos[1] += 0.5;
-      dogDir = 1;
       break;
     case 2:
     case "d":
       curPos[0] += 1;
       curPos[1] += -0.5;
-      dogDir = 2;
       break;
     case 3:
     case "s":
       curPos[1] += -1;
-      dogDir = 3;
       break;
     case 4:
     case "a":
       curPos[0] += -1;
       curPos[1] += -0.5;
-      dogDir = 4;
       break;
     case 5:
     case "q":
       curPos[0] += -1;
       curPos[1] += 0.5
-      dogDir = 5;
+      break;
+    case "f":
+      dig();
       break;
     default:
       console.log("error, invalid input: "+direction);
@@ -230,9 +157,10 @@ function move(direction) {
   
   updateCurPosChunk();
   getChunksInView();
+  detectTreasure();
   drawMap();
   
-  //console.log(curChunk);
+  //console.log(curChunk, curPos);
 }
 
 function checkChunkInView(chunkName) {
@@ -308,17 +236,6 @@ function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
   */
 
   return (match == result) ? true : false;
-}
-
-function drawChunkPerim(chunkOriginX, chunkOriginY) {
-  pathHex(chunkOriginX - (curPos[0] * hexOffsetWidth),
-          chunkOriginY - (-curPos[1] * hexHeight),
-          chunkRadius, 0.5);
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctx.setLineDash([2, 5]);
-  ctx.stroke();
-  ctx.setLineDash([]);
 }
 
 function getRelPos() {
@@ -433,4 +350,60 @@ function getChunksInView() {
   }
 
   //console.log(chunksInView.length);
+}
+
+function setupTreasure(treasure) {
+  for (let i = 0; i < treasure.length; i++) {
+    treasure[i] = getRandCoord();
+  }
+}
+
+function getRandCoord() {
+  let x = Math.floor(Math.random() * 100 - 50);
+  let y = Math.floor(Math.random() * 200 - 100)/2;
+
+  if (isEven(x)) {
+    if (!isInt(y)) {
+      y -= 0.5 * gT0(y);
+    }
+  } else {
+    if (isInt(y)) {
+      y -= 0.5 * gT0(y);
+    }
+  }
+
+  return [x, y]
+}
+
+function detectTreasure() {
+  let closestTreasure = 100;
+  nearbyTreasure1 = false;
+  dogDir = 0;
+
+  treasure1.forEach((t) => {
+    let xDist = -(curPos[0] - t[0]);
+    let yDist = -(curPos[1] - t[1]);
+    if (xDist <= 10 && yDist <= 10) {
+      nearbyTreasure1 = true;
+      
+      let dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
+      if (dist < closestTreasure) {
+        closestTreasure = dist;
+        dogDir = Math.atan2(xDist, yDist) + (2 * Math.PI);
+      }
+    }
+  });
+
+  //console.log(closestTreasure);
+}
+
+function dig() {
+  if (treasure1.findIndex(matchArrElement, curPos) > -1) {
+    treasure1.splice(treasure1.findIndex(matchArrElement, curPos), 1);
+    treasure1Found = true;
+  }
+
+  if (treasure2.findIndex(matchArrElement, curPos) > -1) {
+    treasure2.splice(treasure2.findIndex(matchArrElement, curPos), 1);
+  }
 }
