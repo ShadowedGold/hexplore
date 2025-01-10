@@ -2,6 +2,7 @@
 
 var originYZoomOffset;
 var hexRadiusZoom;
+var chunkPerimOpacity;
 
 // zoomed in if true
 if (true) {
@@ -10,6 +11,13 @@ if (true) {
 } else {
   originYZoomOffset = 2;
   hexRadiusZoom = 25;
+}
+
+// chunk perimeter opacity up if true
+if (false) {
+  chunkPerimOpacity = 0.7;
+} else {
+  chunkPerimOpacity = 0.1;
 }
 
 // SET UP --------------------------------------------------------------
@@ -43,6 +51,7 @@ var chunksInView = [];
 
 // dog direction setup
 var dogDir = 0;
+var moveThrough = false;
 
 // treasure setup
 var treasure1 = new Array(10);
@@ -92,6 +101,7 @@ function getHexPoints(x, y, radius, offset) {
   return pointsArr;
 }
 
+// gets [x,y] in pixels relative to [0,0]
 function getChunkOrigin(chunkName) {
   let chunkOffset = new Array(2);
 
@@ -108,6 +118,7 @@ function getChunkOrigin(chunkName) {
   return [chunkOriginX, chunkOriginY];
 }
 
+// gets [x,y] in chunk co-ords relative to [0,0]
 function getChunkOffset(chunkName) {
   let strArr = chunkName.split(",");
   let xOffset = Number(strArr[0]);
@@ -238,19 +249,31 @@ function checkCorner(p0, p1, cX, cY, offset, match, chunkName) {
   return (match == result) ? true : false;
 }
 
-function getRelPos() {
-  let relX = curPos[0] - (curChunk[0] * 8);
-  let relY = curPos[1] - (curChunk[1] * 12);
+// gets [x,y] in hex co-ords relative to chunk
+// hexPos uses hex co-ords, chunkPos uses chunk co-ords
+function getRelHexPos(hexPos, chunkPos) {
+  let relX = hexPos[0] - (chunkPos[0] * 8);
+  let relY = hexPos[1] - (chunkPos[1] * 12);
 
   return [relX, relY];
 }
 
-function updateCurPosChunk() {
-  let relPos = getRelPos();
+// gets [x,y] in hex co-ords relative to global origin
+function getGlobalCellPos(cellNum, chunkName) {
+  let chunkPos = getChunkOffset(chunkName);
+
+  let globalX = (chunkPos[0] * 8) + cellRelPos[cellNum][0];
+  let globalY = (chunkPos[1] * 12) + cellRelPos[cellNum][1];
+
+  return [globalX, globalY];
+}
+
+function getTerrain(hexPos) {
   
-  //let x = relPos[0] * hexOffsetWidth;
-  //let y = relPos[1] * hexHeight;
-  //let c = Math.sqrt((x * x) + (y * y));
+}
+
+function updateCurPosChunk() {
+  let relPos = getRelHexPos(curPos, curChunk);
 
   if ((relPos[0] == 0 && relPos[1] == 5) ||
       (relPos[0] == 1 && relPos[1] == 4.5) ||
@@ -398,12 +421,12 @@ function detectTreasure() {
 }
 
 function dig() {
-  if (treasure1.findIndex(matchArrElement, curPos) > -1) {
-    treasure1.splice(treasure1.findIndex(matchArrElement, curPos), 1);
+  if (treasure1.findIndex(matchArrEl, curPos) > -1) {
+    treasure1.splice(treasure1.findIndex(matchArrEl, curPos), 1);
     treasure1Found = true;
   }
 
-  if (treasure2.findIndex(matchArrElement, curPos) > -1) {
-    treasure2.splice(treasure2.findIndex(matchArrElement, curPos), 1);
+  if (treasure2.findIndex(matchArrEl, curPos) > -1) {
+    treasure2.splice(treasure2.findIndex(matchArrEl, curPos), 1);
   }
 }

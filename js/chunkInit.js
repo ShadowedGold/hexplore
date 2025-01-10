@@ -130,11 +130,11 @@ function initPathLine(chunkName, startHex, endHex) {
 
   stepsArr.forEach((step, i) => {
     //if (i > 0) {
-    chunks[chunkName].cellsArr[cellRelPos.findIndex(matchArrElement, step)] = tileTypes[0];
+    chunks[chunkName].cellsArr[cellRelPos.findIndex(matchArrEl, step)] = tileTypes[0];
   });
 }
 
-function matchArrElement(element) {
+function matchArrEl(element) {
   return element[0] == this[0] && element[1] == this[1];
 }
 

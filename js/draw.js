@@ -20,13 +20,17 @@ function drawMap() {
   drawUI();
 }
 
-function drawHex(x, y, colour) {
+function drawHex(x, y, colour, cellNum, chunkName) {
   pathHex(x, y, hexRadius, 0);
   ctx.lineWidth = 1;
   ctx.strokeStyle = '#202020';
   ctx.stroke();
   ctx.fillStyle = "#"+colour;
   ctx.fill();
+
+  if (treasure2.findIndex(matchArrEl, getGlobalCellPos(cellNum, chunkName)) > -1) {
+    drawTreasure2(x,y);
+  }
 }
 
 function drawChunk(chunkName) {
@@ -35,7 +39,7 @@ function drawChunk(chunkName) {
   chunks[chunkName].cellsArr.forEach((cell, i) => {
     let relX = chunkOrigin[0] + ((curPos[0] - cellRelPos[i][0]) * -hexOffsetWidth);
     let relY = chunkOrigin[1] + ((-curPos[1] + cellRelPos[i][1]) * -hexHeight);
-    drawHex(relX, relY, chunks[chunkName].cellsArr[i]);
+    drawHex(relX, relY, chunks[chunkName].cellsArr[i], i, chunkName);
   });
 
   return chunkOrigin;
@@ -46,7 +50,7 @@ function drawChunkPerim(chunkOriginX, chunkOriginY) {
           chunkOriginY - (-curPos[1] * hexHeight),
           chunkRadius, 0.5);
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.strokeStyle = 'rgba(255,255,255,'+chunkPerimOpacity+')';
   ctx.setLineDash([2, 5]);
   ctx.stroke();
   ctx.setLineDash([]);
@@ -114,6 +118,7 @@ function drawUI() {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   let fontsize = 20;
+  let lineHeight = fontsize * 1.5;
   ctx.font = fontsize+"px sans-serif";
   ctx.lineWidth = 4;
   ctx.strokeStyle = 'black';
@@ -122,14 +127,16 @@ function drawUI() {
   if (treasure1.length > 0) {
     text = treasure1Img+" Left: "+treasure1.length;
   } else text = "You Win!";
-
-  if (treasure2.length < treasure2Available) {
-    text += "\n"+
-            treasure2Img+ "x"+(treasure2Available - treasure2.length);
-  }
   
   ctx.strokeText(text, pos[0], pos[1]);
   ctx.fillText(text, pos[0], pos[1]);
+
+  if (treasure2.length < treasure2Available) {
+    text = treasure2Img+" "+(treasure2Available - treasure2.length);
+
+    ctx.strokeText(text, pos[0], pos[1] + lineHeight);
+    ctx.fillText(text, pos[0], pos[1] + lineHeight);
+  }
 
   ctx.textAlign = 'center';
   text = curPos;
