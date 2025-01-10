@@ -133,27 +133,27 @@ function move(direction) {
   switch (direction) {
     case 0:
     case "w":
-      resolveNewPos([curPos[0], curPos[1] += 1]);
+      resolveNewPos([curPos[0], curPos[1] + 1]);
       break;
     case 1:
     case "e":
-      resolveNewPos([curPos[0] += 1, curPos[1] += 0.5]);
+      resolveNewPos([curPos[0] + 1, curPos[1] + 0.5]);
       break;
     case 2:
     case "d":
-      resolveNewPos([curPos[0] += 1, curPos[1] += -0.5]);
+      resolveNewPos([curPos[0] + 1, curPos[1] - 0.5]);
       break;
     case 3:
     case "s":
-      resolveNewPos([curPos[0], curPos[1] += -1]);
+      resolveNewPos([curPos[0], curPos[1] - 1]);
       break;
     case 4:
     case "a":
-      resolveNewPos([curPos[0] += -1, curPos[1] += -0.5]);
+      resolveNewPos([curPos[0] - 1, curPos[1] - 0.5]);
       break;
     case 5:
     case "q":
-      resolveNewPos([curPos[0] += -1, curPos[1] += 0.5]);
+      resolveNewPos([curPos[0] - 1, curPos[1] + 0.5]);
       break;
     case "f":
       dig();
@@ -263,16 +263,31 @@ function getGlobalCellPos(cellNum, chunkName) {
   return [globalX, globalY];
 }
 
-function getTerrain(hexPos) {
-  
-}
-
 function resolveNewPos(newPos) {
+  // get the chunk the new position is in, the chunk's name,
+  // the new position's cell index, and the cell's terrain
   let updatedChunk = getUpdatedChunkFromPos(newPos, curChunk);
-  
-  //if new pos is good...
-  curPos = newPos;
-  curChunk = updatedChunk;
+  let newPosCellIndex = cellRelPos.findIndex(matchArrEl, getRelHexPos(newPos, updatedChunk));
+  let updatedChunkName = updatedChunk[0]+","+updatedChunk[1];
+  let newPosTerrain = chunks[updatedChunkName].cellsArr[newPosCellIndex];
+
+  switch (newPosTerrain) {
+    // if path or grass, move as normal
+    case tileTypes[0]:
+    case tileTypes[1]:
+      curPos = newPos;
+      curChunk = updatedChunk;
+      break;
+    // if bushes, move at half speed
+    case tileTypes[2]:
+      break;
+    // if tree, don't move
+    case tileTypes[3]:
+      break;
+    // if something else, error
+    default:
+      console.log("error: unknown terrain")
+  }
 }
 
 function getUpdatedChunkFromPos(hexPos, curChunk) {
