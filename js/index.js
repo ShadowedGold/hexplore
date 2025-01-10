@@ -133,31 +133,27 @@ function move(direction) {
   switch (direction) {
     case 0:
     case "w":
-      curPos[1] += 1;
+      resolveNewPos([curPos[0], curPos[1] += 1]);
       break;
     case 1:
     case "e":
-      curPos[0] += 1;
-      curPos[1] += 0.5;
+      resolveNewPos([curPos[0] += 1, curPos[1] += 0.5]);
       break;
     case 2:
     case "d":
-      curPos[0] += 1;
-      curPos[1] += -0.5;
+      resolveNewPos([curPos[0] += 1, curPos[1] += -0.5]);
       break;
     case 3:
     case "s":
-      curPos[1] += -1;
+      resolveNewPos([curPos[0], curPos[1] += -1]);
       break;
     case 4:
     case "a":
-      curPos[0] += -1;
-      curPos[1] += -0.5;
+      resolveNewPos([curPos[0] += -1, curPos[1] += -0.5]);
       break;
     case 5:
     case "q":
-      curPos[0] += -1;
-      curPos[1] += 0.5
+      resolveNewPos([curPos[0] += -1, curPos[1] += 0.5]);
       break;
     case "f":
       dig();
@@ -166,7 +162,6 @@ function move(direction) {
       console.log("error, invalid input: "+direction);
   }
   
-  updateCurPosChunk();
   getChunksInView();
   detectTreasure();
   drawMap();
@@ -272,16 +267,25 @@ function getTerrain(hexPos) {
   
 }
 
-function updateCurPosChunk() {
-  let relPos = getRelHexPos(curPos, curChunk);
+function resolveNewPos(newPos) {
+  let updatedChunk = getUpdatedChunkFromPos(newPos, curChunk);
+  
+  //if new pos is good...
+  curPos = newPos;
+  curChunk = updatedChunk;
+}
+
+function getUpdatedChunkFromPos(hexPos, curChunk) {
+  let relPos = getRelHexPos(hexPos, curChunk);
+  let updatedCurChunk = [curChunk[0], curChunk[1]];
 
   if ((relPos[0] == 0 && relPos[1] == 5) ||
       (relPos[0] == 1 && relPos[1] == 4.5) ||
       (relPos[0] == 2 && relPos[1] == 4) ||
       (relPos[0] == 3 && relPos[1] == 3.5) ||
       (relPos[0] == 4 && relPos[1] == 3)) {
-    curChunk[0] += 0.5;
-    curChunk[1] += 0.5;
+    updatedCurChunk[0] += 0.5;
+    updatedCurChunk[1] += 0.5;
   }
 
   if ((relPos[0] == 5 && relPos[1] == 2.5) ||
@@ -289,7 +293,7 @@ function updateCurPosChunk() {
       (relPos[0] == 5 && relPos[1] == 0.5) ||
       (relPos[0] == 5 && relPos[1] == -0.5) ||
       (relPos[0] == 5 && relPos[1] == -1.5)) {
-    curChunk[0] += 1;
+    updatedCurChunk[0] += 1;
   }
 
   if ((relPos[0] == 5 && relPos[1] == -2.5) ||
@@ -297,8 +301,8 @@ function updateCurPosChunk() {
       (relPos[0] == 3 && relPos[1] == -3.5) ||
       (relPos[0] == 2 && relPos[1] == -4) ||
       (relPos[0] == 1 && relPos[1] == -4.5)) {
-    curChunk[0] += 0.5;
-    curChunk[1] -= 0.5;
+    updatedCurChunk[0] += 0.5;
+    updatedCurChunk[1] -= 0.5;
   }
 
   if ((relPos[0] == 0 && relPos[1] == -5) ||
@@ -306,8 +310,8 @@ function updateCurPosChunk() {
       (relPos[0] == -2 && relPos[1] == -4) ||
       (relPos[0] == -3 && relPos[1] == -3.5) ||
       (relPos[0] == -4 && relPos[1] == -3)) {
-    curChunk[0] -= 0.5;
-    curChunk[1] -= 0.5;
+    updatedCurChunk[0] -= 0.5;
+    updatedCurChunk[1] -= 0.5;
   }
 
   if ((relPos[0] == -5 && relPos[1] == -2.5) ||
@@ -315,7 +319,7 @@ function updateCurPosChunk() {
       (relPos[0] == -5 && relPos[1] == -0.5) ||
       (relPos[0] == -5 && relPos[1] == 0.5) ||
       (relPos[0] == -5 && relPos[1] == 1.5)) {
-    curChunk[0] -= 1;
+    updatedCurChunk[0] -= 1;
   }
 
   if ((relPos[0] == -5 && relPos[1] == 2.5) ||
@@ -323,11 +327,13 @@ function updateCurPosChunk() {
       (relPos[0] == -3 && relPos[1] == 3.5) ||
       (relPos[0] == -2 && relPos[1] == 4) ||
       (relPos[0] == -1 && relPos[1] == 4.5)) {
-    curChunk[0] -= 0.5;
-    curChunk[1] += 0.5;
+    updatedCurChunk[0] -= 0.5;
+    updatedCurChunk[1] += 0.5;
   }
 
-  //console.log(relPos, curChunk);
+  //console.log(relPos, updatedCurChunk);
+
+  return updatedCurChunk;
 }
 
 function getChunksInView() {
