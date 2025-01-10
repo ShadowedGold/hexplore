@@ -280,6 +280,13 @@ function resolveNewPos(newPos) {
       break;
     // if bushes, move at half speed
     case tileTypes[2]:
+      if (!moveThrough) {
+        moveThrough = true;
+      } else {
+        moveThrough = false;
+        curPos = newPos;
+        curChunk = updatedChunk;
+      }
       break;
     // if tree, don't move
     case tileTypes[3]:

@@ -66,7 +66,11 @@ function drawDog(x, y) {
 
   ctx.translate(originX, originY);
   ctx.rotate(dogDir+(Math.PI*2/6));
-  ctx.fillText(text, 0, 0);
+
+  if (moveThrough) {
+    ctx.fillText(text, 0, 5);
+  } else ctx.fillText(text, 0, 0);
+
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   
   //ctx.fillText(text, x, y);
