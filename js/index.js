@@ -449,12 +449,21 @@ function detectTreasure() {
 }
 
 function dig() {
-  if (treasure1.findIndex(matchArrEl, curPos) > -1) {
-    treasure1.splice(treasure1.findIndex(matchArrEl, curPos), 1);
-    treasure1Found = true;
-  }
+  let neighbouringHexes = JSON.parse(JSON.stringify(hexRelNeighbours));
+  neighbouringHexes.push([0,0]);
 
-  if (treasure2.findIndex(matchArrEl, curPos) > -1) {
-    treasure2.splice(treasure2.findIndex(matchArrEl, curPos), 1);
-  }
+  neighbouringHexes.forEach((n, i) => {
+    let pos = [curPos[0] + neighbouringHexes[i][0],
+               curPos[1]+ neighbouringHexes[i][1]];
+
+    if (treasure1.findIndex(matchArrEl, pos) > -1) {
+      treasure1.splice(treasure1.findIndex(matchArrEl, pos), 1);
+      treasure1Found = true;
+    }
+  
+    if (treasure2.findIndex(matchArrEl, pos) > -1) {
+      treasure2.splice(treasure2.findIndex(matchArrEl, pos), 1);
+    }
+    
+  });
 }
